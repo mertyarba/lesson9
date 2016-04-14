@@ -76,5 +76,85 @@
 		  echo $stmt->error;
 	  }
 	}
+	function createInterestDropdown(){
+		//query all interests
+		$mysql = new mysqli("localhost", $GLOBALS["db_username"], $GLOBALS["db_password"], "webpr2016_mertyarba");
+      $stmt= $mysql->prepare("SELECT id, name FROM interest ORDER BY name ASC");
+	  
+	  echo $mysql->error;
+	  
+	  $stmt->bind_result($id, $name);
+	  
+	  $stmt->execute();
 
-?>
+		//dropdown html
+		$html = "<select name='user_interest'>";
+		
+		//for each interest
+		while ($stmt->fetch()){
+			
+			$html .= "<option value='".$id."'>".$name."</option>";
+			
+		}
+		
+		$html .= "</select>";
+		
+		echo $html;
+		
+	}
+	function saveUserInterest($interest_id){
+		
+		$mysql = new mysqli("localhost", $GLOBALS["db_username"], $GLOBALS["db_password"], "webpr2016_mertyarba");
+		
+		//if user already has interests
+		$stmt = $mysql->prepare("SELECT id FROM user_interests WHERE user_id = ? and interests_id = ?");
+		echo $mysql->error;
+		$stmt->bind_param("ii", $_SESSION["user_id"], $interest_id);
+		$stmt->execute();
+		
+		if($stmt->fetch()){
+			//it existed
+			echo "You already have this interest!";
+			return; //stop it there
+		}
+		$stmt->close();
+		
+		$stmt = $mysql->prepare("INSERT INTO user_interests (user_id, interests_id) VALUES (?, ?)");
+		
+		echo $mysql->error;
+		$stmt->bind_param("ii", $_SESSION["user_id"] ,$interest_id);
+		
+		if($stmt->execute()){
+			
+			echo "Saved successfully.";
+		}else{
+			echo $stmt->error;
+		}
+		
+	}
+	function createUserInterestList(){
+			$mysql = new mysqli("localhost", $GLOBALS["db_username"], $GLOBALS["db_password"], "webpr2016_mertyarba");
+		$stmt = $mysql->prepare("SELECT interest.name FROM user_interests INNER JOIN interest ON user_interests.id = interest.id WHERE user_interests.user_id = ?");
+		
+		echo $mysql->error;
+		
+		$stmt->bind_param("i", $_SESSION["user_id"]);
+		
+		$stmt->bind_result($interest);
+		
+		$stmt->execute();
+		$html = "<ul>";
+		
+		//for each interest
+		while ($stmt->fetch()){
+			
+			$html .= "<li>".$interest."</li>";
+			
+		}
+		$html .= "</ul>";
+		
+		echo $html;
+		
+	}	
+	
+	?>

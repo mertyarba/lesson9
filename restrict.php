@@ -30,6 +30,19 @@
 			echo "You left the interest field empty!";
 		}	
 	}
+	
+	if (isset($_GET["select_interest"])){
+		
+		if (!empty($_GET["user_interest"])){
+		
+		saveUserInterest($_GET["user_interest"]);
+		
+		}else{
+			
+			echo "ERROR!";
+		}	
+	}
+	
 
 ?>
 
@@ -44,5 +57,19 @@
 
 	<input type="text" name="new_interest">
 	<input type="submit" name="add_new_interest" value="Add">
+	
+</form>
+
+<h2>Select User Interest</h2>
+<form>
+	<?php createInterestDropdown(); ?>
+	<input type="submit" name="select_interest" value="Select">
+	
+</form>
+
+<h2>Interests</h2>
+<form>
+	<?php createUserInterestList(); ?>
+	
 	
 </form>
